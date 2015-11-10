@@ -22,8 +22,8 @@ import msgpack
 from zmq_rpc.server import ZmqRpcServer, RpcMethod
 from zmq_rpc.client import ZmqRpcClient
 
-# Import from here
-from project.xbus.models import Event
+# Import from xbus
+from xbus.models import Event
 
 
 class Consumer(ZmqRpcServer):

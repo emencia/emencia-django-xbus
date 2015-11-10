@@ -7,9 +7,9 @@ from django.core.management.base import LabelCommand
 from django.core.exceptions import ObjectDoesNotExist
 
 # Imports from xbus
-from project.xbus.utils import process_incoming_data, get_handler, get_object
-from project.xbus.api import send_event
-from project.xbus.models import Event
+from xbus.utils import process_incoming_data, get_handler, get_object
+from xbus.api import send_event
+from xbus.models import Event
 
 
 banner = (

@@ -6,8 +6,6 @@ import sys
 from time import sleep
 from traceback import format_exc
 
-admin_logger = logging.getLogger("django.request")
-
 # Import from Django
 from django.core.management.base import NoArgsCommand
 
@@ -15,9 +13,11 @@ from django.core.management.base import NoArgsCommand
 import msgpack
 
 # Import from here
-from project.xbus.models import Event
-from project.xbus import api
+from xbus.models import Event
+from xbus import api
 
+
+admin_logger = logging.getLogger("django.request")
 
 class Command(NoArgsCommand):
 

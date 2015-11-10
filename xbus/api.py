@@ -2,13 +2,15 @@
 from uuid import uuid4
 from traceback import format_exc
 
+# Import from Django
+from django.conf import settings
+
 # Other
 import msgpack
-from django.conf import settings
 from zmq_rpc.client import ZmqRpcClient
 
-# Import from project.xbus
-from .models import Event
+# Import from xbus
+from xbus.models import Event
 
 
 registry = {}

@@ -1,8 +1,8 @@
 # Imports from django
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 
-# Import from this project
-from project.xbus import api
+# Import from xbus
+from xbus import api
 
 
 def update_object(obj, **kw):
