@@ -10,7 +10,7 @@ import msgpack
 from zmq_rpc.client import ZmqRpcClient
 
 # Import from xbus
-from xbus.models import Event
+from .models import Event
 
 
 registry = {}
@@ -98,7 +98,8 @@ def new_connection_to_xbus():
 
 def send_immediate_reply_event(event):
     conn, token = new_connection_to_xbus()
-    return _xbus_send_event(conn, token, event)
+    ret, event_id = _xbus_send_event(conn, token, event)
+    return ret
 
 
 def _xbus_send_event(conn, token, event):
@@ -114,20 +115,14 @@ def _xbus_send_event(conn, token, event):
     envelope_id = conn.start_envelope(token)
     event_id = conn.start_event(token, envelope_id, event_type, 0)
 
-    if not event_id:
-        error = (
+    # In case of error event_id will be the empty string, otherwise an UUID
+    assert bool(event_id), (
             "Error: the following event_type isn't registered with "
             "xbus or you might not have the right permissions to send "
-            "it: %s" % event_type
-        )
-        event.state = 'error'
-        event.comment = error
-        event.save()
-        print error
-        return None
+            "it: %s" % event_type)
 
     conn.send_item(token, envelope_id, event_id, item)
     ret = conn.end_event(token, envelope_id, event_id)
     conn.end_envelope(token, envelope_id)
 
-    return ret
+    return ret, event_id

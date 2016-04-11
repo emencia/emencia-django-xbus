@@ -82,7 +82,7 @@ class Command(NoArgsCommand):
 
         for event in pending:
             try:
-                api._xbus_send_event(conn, token, event)
+                ret, event_id = api._xbus_send_event(conn, token, event)
             except Exception:
                 event.state = 'error'
                 event.comment = format_exc()
@@ -90,6 +90,7 @@ class Command(NoArgsCommand):
                 admin_logger.error("XBUS - Connection error - OUT %s", event.comment)
             else:
                 event.state = 'done'
+                event.event_id = event_id
                 event.comment = u''  # Override previous error, may happen
                 event.save()
 

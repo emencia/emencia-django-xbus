@@ -11,17 +11,29 @@ import msgpack
 from .models import Event
 
 
+
+def change_to_pending(modeladmin, request, queryset):
+    for obj in queryset.iterator():
+        obj.state = 'pending'
+        obj.save()
+
+change_to_pending.short_description = u'Change state to pending'
+
+
 class EventAdmin(admin.ModelAdmin):
     list_display = (
-        'xref', 'xbus_message_correlation_id',
-        'event_type', 'direction', 'state',
+        'xref',
+        'event_type', 'event_id',
+        'direction', 'state',
         'ctime', 'id',
     )
 
     list_filter = ('direction', 'state', 'event_type')
-    search_fields = ('xref', 'xbus_message_correlation_id')
+    search_fields = ('xref', 'xbus_message_correlation_id', 'event_id')
 
     readonly_fields = ['to_admin_url', 'payload', ]
+
+    actions = [change_to_pending]
 
     def payload(self, obj):
         item = msgpack.unpackb(obj.item, encoding='utf-8')

@@ -1,51 +1,28 @@
 # -*- coding: utf-8 -*-
-from south.utils import datetime_utils as datetime
-from south.db import db
-from south.v2 import SchemaMigration
-from django.db import models
+from __future__ import unicode_literals
+
+from django.db import migrations, models
 
 
-class Migration(SchemaMigration):
+class Migration(migrations.Migration):
 
-    def forwards(self, orm):
-        # Adding model 'Event'
-        db.create_table(u'xbus_event', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('content_type', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['contenttypes.ContentType'])),
-            ('xref', self.gf('django.db.models.fields.CharField')(max_length=36)),
-            ('xbus_message_correlation_id', self.gf('django.db.models.fields.CharField')(max_length=36)),
-            ('event_type', self.gf('django.db.models.fields.CharField')(max_length=80)),
-            ('direction', self.gf('django.db.models.fields.CharField')(max_length=5)),
-            ('state', self.gf('django.db.models.fields.CharField')(max_length=20)),
-            ('item', self.gf('django.db.models.fields.BinaryField')()),
-        ))
-        db.send_create_signal(u'xbus', ['Event'])
+    dependencies = [
+    ]
 
-
-    def backwards(self, orm):
-        # Deleting model 'Event'
-        db.delete_table(u'xbus_event')
-
-
-    models = {
-        u'contenttypes.contenttype': {
-            'Meta': {'ordering': "('name',)", 'unique_together': "(('app_label', 'model'),)", 'object_name': 'ContentType', 'db_table': "'django_content_type'"},
-            'app_label': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'model': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '100'})
-        },
-        u'xbus.event': {
-            'Meta': {'object_name': 'Event'},
-            'content_type': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['contenttypes.ContentType']"}),
-            'direction': ('django.db.models.fields.CharField', [], {'max_length': '5'}),
-            'event_type': ('django.db.models.fields.CharField', [], {'max_length': '80'}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'item': ('django.db.models.fields.BinaryField', [], {}),
-            'state': ('django.db.models.fields.CharField', [], {'max_length': '20'}),
-            'xbus_message_correlation_id': ('django.db.models.fields.CharField', [], {'max_length': '36'}),
-            'xref': ('django.db.models.fields.CharField', [], {'max_length': '36'})
-        }
-    }
-
-    complete_apps = ['xbus']
+    operations = [
+        migrations.CreateModel(
+            name='Event',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('ctime', models.DateTimeField(auto_now_add=True, null=True)),
+                ('xref', models.CharField(max_length=36, verbose_name='External Ref')),
+                ('xbus_message_correlation_id', models.CharField(max_length=36, verbose_name='Message correlation id')),
+                ('event_type', models.CharField(max_length=80, verbose_name='Event type')),
+                ('direction', models.CharField(max_length=25, verbose_name='Direction', choices=[(b'in', 'Incoming'), (b'out', 'Outgoing'), (b'immediate-out', 'Immediate-Out')])),
+                ('state', models.CharField(max_length=20, verbose_name='State', choices=[(b'pending', 'Pending'), (b'done', 'Done'), (b'error', 'Error')])),
+                ('comment', models.TextField(verbose_name='Commentaire', blank=True)),
+                ('item', models.BinaryField(verbose_name='Event item')),
+                ('admin_url', models.CharField(default=b'', max_length=250, null=True, editable=False)),
+            ],
+        ),
+    ]

@@ -53,10 +53,12 @@ class Event(Model):
 
     # Identify the object in the database and its version
     xref = CharField(_(u'External Ref'), max_length=36)
-    xbus_message_correlation_id = CharField(_(u'Event id'), max_length=36)
+    xbus_message_correlation_id = CharField(_(u'Message correlation id'),
+                                            max_length=36)
 
     # Event type
     event_type = CharField(_(u'Event type'), max_length=80)
+    event_id = CharField(_(u'Event id'), max_length=80, null=True, blank=True)
 
     # Direction : incoming or outgoing
     DIRECTION_CHOICES = (
