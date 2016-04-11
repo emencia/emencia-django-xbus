@@ -69,14 +69,24 @@ class Command(NoArgsCommand):
                 event.save()
 
     def queue_run_out(self, limit=None):
+        """
+        Sends (at most 100) pending events to xbus. Returns the number
+        of pending events over 100.
+        """
         pending = Event.objects.filter(state='pending', direction='out')
         pending = pending.order_by('pk')
         if limit is not None:
             pending = pending[:limit]
 
         # Avoid login if there is nothing to send
-        if pending.count() == 0:
-            return
+        left = 0
+        n = pending.count()
+        if n == 0:
+            return left
+
+        if n > 100:
+            pending = pending[:100]
+            left = n - 100
 
         conn, token = api.new_connection_to_xbus()
 
@@ -94,16 +104,20 @@ class Command(NoArgsCommand):
                 event.comment = u''  # Override previous error, may happen
                 event.save()
 
+            sleep(0.1) # Wait for Xbus to digest
+
         conn.logout(token)
         conn.close()
+        return left
 
     def handle_noargs(self, **kw):
         if kw["daemon"]:
             sys.stdout = fdopen(sys.stdout.fileno(), 'w', 0)
             while True:
                 self.queue_run_in(kw['in'])
-                self.queue_run_out(kw['out'])
-                sleep(5)
+                left = self.queue_run_out(kw['out'])
+                if left == 0:
+                    sleep(5)
         else:
             self.queue_run_in(kw['in'])
             self.queue_run_out(kw['out'])
