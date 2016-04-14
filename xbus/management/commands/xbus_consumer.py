@@ -98,9 +98,9 @@ class Consumer(ZmqRpcServer):
         del self.event_id_to_type[event_id]
         return True, []
 
-#   @RpcMethod
-#   def end_envelope(self, envelope_id):
-#       return True, []
+    @RpcMethod
+    def end_envelope(self, envelope_id):
+        return True, []
 
 
 # URL the consumer will listen to
