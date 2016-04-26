@@ -31,7 +31,7 @@ class EventAdmin(admin.ModelAdmin):
     list_filter = ('direction', 'state', 'event_type')
     search_fields = ('xref', 'xbus_message_correlation_id', 'event_id')
 
-    readonly_fields = ['to_admin_url', 'payload', ]
+    readonly_fields = ['to_admin_url', 'payload', 'ctime']
 
     actions = [change_to_pending]
 
