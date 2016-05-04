@@ -9,10 +9,17 @@ def update_object(obj, **kw):
     """
     Helper function to update an object with the given new values.
     """
+    updated = False
     for key, value in kw.items():
-        setattr(obj, key, value)
+        old_value = getattr(obj, key)
+        if value != old_value:
+            setattr(obj, key, value)
+            updated = True
 
-    obj.save()
+    if updated:
+        obj.save()
+
+    return updated
 
 
 def kwargs_from_dict(item, keys, map_fields={}):
