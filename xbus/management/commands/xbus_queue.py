@@ -34,6 +34,14 @@ class Command(NoArgsCommand):
             '--out', type='int',
             help='limit number of outcoming events to handle',
         ),
+        make_option(
+            '--disable_out', action='store_true', default=False,
+            help='Disable outgoing messages',
+        ),
+        make_option(
+            '--disable_in', action='store_true', default=False,
+            help='Disable incoming messages',
+        ),
     )
 
     def queue_run_in(self, limit=None):
@@ -114,10 +122,19 @@ class Command(NoArgsCommand):
         if kw["daemon"]:
             sys.stdout = fdopen(sys.stdout.fileno(), 'w', 0)
             while True:
-                self.queue_run_in(kw['in'])
-                left = self.queue_run_out(kw['out'])
+                if not kw["disable_in"]:
+                    self.queue_run_in(kw['in'])
+
+                if not kw["disable_out"]:
+                    left = self.queue_run_out(kw['out'])
+                else:
+                    left = 0
+
                 if left == 0:
                     sleep(5)
         else:
-            self.queue_run_in(kw['in'])
-            self.queue_run_out(kw['out'])
+            if not kw["disable_in"]:
+                self.queue_run_in(kw['in'])
+
+            if not kw["disable_out"]:
+                self.queue_run_out(kw['out'])
