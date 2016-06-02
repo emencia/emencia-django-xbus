@@ -66,12 +66,15 @@ def send_event(instance, event_type, item, immediate=False, admin_url=None):
     if immediate:
         try:
             ret_code, ret_val = send_immediate_reply_event(event)
-            event.state = 'done'
             event.comment = (
                 "Returned code: %s\nReturned val: %s"
                 % (ret_code, ret_val)
             )
+            if ret_code is True:
+                event.state = 'done'
+
             event.save()
+
             return event, ret_code, ret_val
         except Exception:
             event.state = 'error'
@@ -121,8 +124,14 @@ def _xbus_send_event(conn, token, event):
             "xbus or you might not have the right permissions to send "
             "it: %s" % event_type)
 
-    conn.send_item(token, envelope_id, event_id, item)
+    ret = conn.send_item(token, envelope_id, event_id, item)
+    if ret is False:
+        return False, event_id
+
     ret = conn.end_event(token, envelope_id, event_id)
-    conn.end_envelope(token, envelope_id)
+    if ret is False:
+        return False, event_id
+
+    ret = conn.end_envelope(token, envelope_id)
 
     return ret, event_id

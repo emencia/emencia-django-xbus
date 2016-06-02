@@ -107,9 +107,13 @@ class Command(NoArgsCommand):
                 event.save()
                 admin_logger.error("XBUS - Connection error - OUT %s", event.comment)
             else:
-                event.state = 'done'
                 event.event_id = event_id
-                event.comment = u''  # Override previous error, may happen
+                if ret is False:
+                    event.comment = u'retry'
+                else:
+                    event.state = 'done'
+                    event.comment = u''  # Override previous error, may happen
+
                 event.save()
 
             sleep(0.1) # Wait for Xbus to digest
