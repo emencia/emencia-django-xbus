@@ -65,17 +65,17 @@ def send_event(instance, event_type, item, immediate=False, admin_url=None):
 
     if immediate:
         try:
-            ret_code, ret_val = send_immediate_reply_event(event)
+            success, reply, event_id = send_immediate_reply_event(event)
+            event.event_id = event_id
             event.comment = (
-                "Returned code: %s\nReturned val: %s"
-                % (ret_code, ret_val)
+                "Returned code: %s\nReturned val: %s" % (success, reply)
             )
-            if ret_code is True:
+            if success is True:
                 event.state = 'done'
 
             event.save()
 
-            return event, ret_code, ret_val
+            return event, success, reply
         except Exception:
             event.state = 'error'
             event.comment = format_exc()
@@ -101,11 +101,18 @@ def new_connection_to_xbus():
 
 def send_immediate_reply_event(event):
     conn, token = new_connection_to_xbus()
-    ret, event_id = _xbus_send_event(conn, token, event)
-    return ret
+    return _xbus_send_event(conn, token, event)
 
 
 def _xbus_send_event(conn, token, event):
+    """
+    Returns a tuple with three values:
+
+    - success : True if the operation succeeded, False if not
+    - reply   : returned value for immediate-reply, None otherwise
+    - event_id: broker event-id, for debugging purpuses
+    """
+
     event_type = event.event_type
     item = event.item
 
@@ -124,14 +131,11 @@ def _xbus_send_event(conn, token, event):
             "xbus or you might not have the right permissions to send "
             "it: %s" % event_type)
 
-    ret = conn.send_item(token, envelope_id, event_id, item)
-    if ret is False:
-        return False, event_id
+    reply = None
+    success = conn.send_item(token, envelope_id, event_id, item)
+    if success:
+        success, reply = conn.end_event(token, envelope_id, event_id)
+        if success:
+            success = conn.end_envelope(token, envelope_id)
 
-    ret = conn.end_event(token, envelope_id, event_id)
-    if ret is False:
-        return False, event_id
-
-    ret = conn.end_envelope(token, envelope_id)
-
-    return ret, event_id
+    return success, reply, event_id

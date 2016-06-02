@@ -100,7 +100,7 @@ class Command(NoArgsCommand):
 
         for event in pending:
             try:
-                ret, event_id = api._xbus_send_event(conn, token, event)
+                ret, reply, event_id = api._xbus_send_event(conn, token, event)
             except Exception:
                 event.state = 'error'
                 event.comment = format_exc()
