@@ -24,7 +24,7 @@ class XbusAwareMixin(Model):
     to be filled to send a create xbus-event.
     """
 
-   
+ 
     objects = XbusManager()
 
     class Meta:
@@ -38,7 +38,7 @@ class XbusAwareMixin(Model):
     odoo_created = NullBooleanField(default=False, editable=False)
 
     def natural_key(self):
-        return self.xref
+        return (self.xref,)
 
     def get_xbus_fields(self):
         return {}
