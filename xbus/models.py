@@ -1,5 +1,5 @@
 # Import from Django
-from django.db.models import Model
+from django.db.models import Model, Manager
 from django.db.models import (
     BinaryField, CharField, DateTimeField, TextField, NullBooleanField,
 )
@@ -7,6 +7,10 @@ from django.utils.translation import ugettext as _
 
 # Other
 from django_extensions.db.fields import UUIDField
+
+class XbusManager(Manager):
+    def get_by_natural_key(self, xref):
+        return self.get(xref=xref)
 
 
 class XbusAwareMixin(Model):
@@ -20,6 +24,9 @@ class XbusAwareMixin(Model):
     to be filled to send a create xbus-event.
     """
 
+   
+    objects = XbusManager()
+
     class Meta:
         abstract = True
 
@@ -29,6 +36,9 @@ class XbusAwareMixin(Model):
     xref = UUIDField(_(u'External Ref'), null=True, blank=True, max_length=80)
 
     odoo_created = NullBooleanField(default=False, editable=False)
+
+    def natural_key(self):
+        return self.xref
 
     def get_xbus_fields(self):
         return {}
