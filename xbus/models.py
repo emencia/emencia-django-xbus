@@ -9,7 +9,7 @@ from django.utils.translation import ugettext as _
 from django_extensions.db.fields import UUIDField
 
 class XbusManager(Manager):
-    def get_by_natural_key(self, xref):
+    def get_by_natural_key(self, xref, odoo_created):
         return self.get(xref=xref)
 
 
@@ -24,7 +24,7 @@ class XbusAwareMixin(Model):
     to be filled to send a create xbus-event.
     """
 
- 
+
     objects = XbusManager()
 
     class Meta:
@@ -38,7 +38,7 @@ class XbusAwareMixin(Model):
     odoo_created = NullBooleanField(default=False, editable=False)
 
     def natural_key(self):
-        return (self.xref,)
+        return (self.xref, self.odoo_created)
 
     def get_xbus_fields(self):
         return {}
