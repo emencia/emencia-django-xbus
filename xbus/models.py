@@ -8,6 +8,9 @@ from django.utils.translation import ugettext as _
 # Other
 from django_extensions.db.fields import UUIDField
 
+
+XREF_LENGTH = 80
+
 class XbusManager(Manager):
     def get_by_natural_key(self, xref, odoo_created):
         return self.get(xref=xref)
@@ -33,7 +36,8 @@ class XbusAwareMixin(Model):
     # TODO
     # 1. Add data migrations to set xref for existing objects
     # 2. Then set unique=True
-    xref = UUIDField(_(u'External Ref'), null=True, blank=True, max_length=80)
+    xref = UUIDField(_(u'External Ref'), null=True, blank=True,
+                     max_length=XREF_LENGTH)
 
     odoo_created = NullBooleanField(default=False, editable=False)
 
@@ -62,7 +66,7 @@ class Event(Model):
     ctime = DateTimeField(auto_now_add=True, null=True)
 
     # Identify the object in the database and its version
-    xref = CharField(_(u'External Ref'), max_length=36)
+    xref = CharField(_(u'External Ref'), max_length=XREF_LENGTH)
     xbus_message_correlation_id = CharField(_(u'Message correlation id'),
                                             max_length=36)
 
