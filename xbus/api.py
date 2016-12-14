@@ -1,6 +1,7 @@
 # Import from the Standard Library
 from uuid import uuid4
 from traceback import format_exc
+import logging
 
 # Import from Django
 from django.conf import settings
@@ -14,6 +15,7 @@ from .models import Event
 
 
 registry = {}
+logger = logging.getLogger(__name__)
 
 
 def register_handler(event_type, handler):
@@ -121,7 +123,7 @@ def _xbus_send_event(conn, token, event):
     item = conn.packer.pack(item)
 
     # Send
-    print 'Sending event...', event_type
+    logger.info(u'Sending event {event_type}'.format(event_type=event_type))
     envelope_id = conn.start_envelope(token)
     event_id = conn.start_event(token, envelope_id, event_type, 0)
 

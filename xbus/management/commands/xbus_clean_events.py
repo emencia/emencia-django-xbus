@@ -1,8 +1,13 @@
 from datetime import datetime, timedelta
+import logging
 
-from django.core.management.base import BaseCommand
+from django.core.management.base import BaseCommand, CommandError
 from django.core.exceptions import ValidationError
+
 from xbus.models import Event
+
+logger = logging.getLogger(__name__)
+
 
 class Command(BaseCommand):
     help = "Delete xbus event from db older than a specific period or date"
@@ -38,10 +43,13 @@ class Command(BaseCommand):
             query = Event.objects.filter(ctime__lte=ctime)
             nb = query.count()
         except ValidationError:
-            print "Wrong argument format, read --help for more help"
+            raise CommandError(
+                'Wrong argument format, read --help for more help')
         else:
             helper = "The {} xbus events older than {} will be delete"
-            print helper.format(nb, ctime)
+            logger.info(
+                'The {nb} xbus events older than {ctime} will be delete'.format(
+                    nb, ctime))
             if interactive:
                 answer = raw_input('Are you sure ? (yes or no): ')
             else:

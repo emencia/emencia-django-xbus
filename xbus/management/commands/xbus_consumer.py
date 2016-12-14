@@ -10,6 +10,7 @@ $ pip install zmq_rpc/pyzmq/
 from datetime import datetime
 from threading import Thread
 from time import sleep
+import logging
 
 # Import from Django
 from django.conf import settings
@@ -24,6 +25,8 @@ from zmq_rpc.client import ZmqRpcClient
 
 # Import from xbus
 from xbus.models import Event
+
+logger = logging.getLogger(__name__)
 
 
 class Consumer(ZmqRpcServer):
@@ -70,7 +73,7 @@ class Consumer(ZmqRpcServer):
     #
     @RpcMethod
     def start_event(self, envelope_id, event_id, type_name):
-        print 'DEBUG: start_event'
+        logger.debug(u'Start event')
         self.event_id_to_type[event_id] = type_name
         return True, [] # Ok
 
@@ -123,11 +126,11 @@ class Command(NoArgsCommand):
         client = ZmqRpcClient(CONSUMER_URL, timeout=1000)
         token = client.login(CONSUMER_LOGIN, CONSUMER_PASSWORD)
         if not token:
-            print 'Error: Authentication failed.'
+            logger.error(u'Authentication failed')
             return
 
         client.register_node(token, CONSUMER_LISTEN)
-        print 'Registration done.'
+        logger.info(u'Registration done')
 
     def handle_noargs(self, **kw):
         thread = Thread(target=self.register_to_xbus)
@@ -135,5 +138,6 @@ class Command(NoArgsCommand):
 
         # Run server
         server = Consumer(CONSUMER_LISTEN)
-        print 'Server run. Listening', CONSUMER_LISTEN
+        logger.info(u'Server run listening {consumer_listen}'.format(
+            consumer_listen=CONSUMER_LISTEN))
         server.run()
