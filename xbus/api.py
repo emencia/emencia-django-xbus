@@ -143,7 +143,7 @@ def _xbus_send_event(conn, token, event):
 
 
 def _send_healtcheck_event(item):
-    """docstring for """
+    """To send healtcheck"""
     conn, token = new_connection_to_xbus()
     event_type = getattr(
         settings, 'XBUS_EMITTER_HEALTCHECK', 'healthcheck_emitter')
