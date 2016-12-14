@@ -32,15 +32,6 @@ class Consumer(ZmqRpcServer):
         super(Consumer, self).__init__(*args, **kw)
         self.event_id_to_type = {}
 
-    #
-    # Implement required methods
-    # XXX All of this is needed?
-    #
-    @RpcMethod
-    def test_func(self, a, b):
-        self.stop()
-        return a + b
-
     @RpcMethod
     def get_metadata(self):
         now = unicode(datetime.now().isoformat())
