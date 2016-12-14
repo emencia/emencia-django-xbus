@@ -71,11 +71,17 @@ class Consumer(ZmqRpcServer):
     @RpcMethod
     def send_item(self, envelope_id, event_id, indices, data):
         item = data
+        event_type = self.event_id_to_type[event_id]
+        healthcheck = getattr(
+            settings, 'XBUS_CONSUMER_HEALTCHECK', 'healthcheck_consumer')
+
+        if event_type == healthcheck:
+            return _send_healtcheck_event(data)
+
         data = msgpack.unpackb(data, encoding='utf-8', use_list=False)
 
         xbus_message_correlation_id = data['xbus_message_correlation_id']
         xref = data['xref']
-        event_type = self.event_id_to_type[event_id]
         Event.objects.create(
             direction='in',
             state='pending',

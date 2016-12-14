@@ -141,3 +141,27 @@ def _xbus_send_event(conn, token, event):
             success = conn.end_envelope(token, envelope_id)
 
     return success, reply, event_id
+
+
+
+def _send_healtcheck_event(item):
+    """To send healtcheck"""
+    conn, token = new_connection_to_xbus()
+    event_type = getattr(
+        settings, 'XBUS_EMITTER_HEALTCHECK', 'healthcheck_emitter')
+    envelope_id = conn.start_envelope(token)
+    event_id = conn.start_event(token, envelope_id, event_type, 0)
+    assert bool(event_id), (
+            "Error: the following event_type isn't registered with "
+            "xbus or you might not have the right permissions to send "
+            "it: %s" % event_type)
+
+    reply = None
+    success = conn.send_item(token, envelope_id, event_id, item)
+    if success:
+        success, reply = conn.end_event(token, envelope_id, event_id)
+
+        if success:
+            success = conn.end_envelope(token, envelope_id)
+
+    return True, []
