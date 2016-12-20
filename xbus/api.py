@@ -143,7 +143,6 @@ def _xbus_send_event(conn, token, event):
     return success, reply, event_id
 
 
-
 def _send_healtcheck_event(item):
     """To send healtcheck"""
     conn, token = new_connection_to_xbus()
@@ -156,6 +155,7 @@ def _send_healtcheck_event(item):
             "xbus or you might not have the right permissions to send "
             "it: %s" % event_type)
 
+    logger.info(u'Send the message')
     reply = None
     success = conn.send_item(token, envelope_id, event_id, item)
     if success:

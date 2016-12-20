@@ -25,6 +25,7 @@ from zmq_rpc.client import ZmqRpcClient
 
 # Import from xbus
 from xbus.models import Event
+from xbus.api import _send_healtcheck_event
 
 logger = logging.getLogger(__name__)
 
@@ -76,6 +77,7 @@ class Consumer(ZmqRpcServer):
             settings, 'XBUS_CONSUMER_HEALTCHECK', 'healthcheck_consumer')
 
         if event_type == healthcheck:
+            logger.info(u'Received the healtcheck message')
             return _send_healtcheck_event(data)
 
         data = msgpack.unpackb(data, encoding='utf-8', use_list=False)
