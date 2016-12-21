@@ -75,6 +75,8 @@ class Consumer(ZmqRpcServer):
         event_type = self.event_id_to_type[event_id]
         healthcheck = getattr(
             settings, 'XBUS_CONSUMER_HEALTCHECK', 'healthcheck_consumer')
+        logger.debug(u'Received item on {event_type}'.format(
+            event_type=event_type))
 
         if event_type == healthcheck:
             logger.info(u'Received the healtcheck message')
