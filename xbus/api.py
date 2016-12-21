@@ -147,7 +147,7 @@ def _send_healtcheck_event(item):
     """To send healtcheck"""
     conn, token = new_connection_to_xbus()
     event_type = getattr(
-        settings, 'XBUS_EMITTER_HEALTCHECK', 'healthcheck_emitter')
+        settings, 'XBUS_EMITTER_HEALTCHECK', u'healthcheck_emitter')
     envelope_id = conn.start_envelope(token)
     event_id = conn.start_event(token, envelope_id, event_type, 0)
     assert bool(event_id), (
