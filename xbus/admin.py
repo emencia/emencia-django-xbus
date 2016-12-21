@@ -11,11 +11,11 @@ import msgpack
 from .models import Event
 
 
-
 def change_to_pending(modeladmin, request, queryset):
     for obj in queryset.iterator():
         obj.state = 'pending'
         obj.save()
+
 
 change_to_pending.short_description = u'Change state to pending'
 

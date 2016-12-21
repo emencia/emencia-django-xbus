@@ -7,7 +7,7 @@ from django.core.management.base import LabelCommand
 from django.core.exceptions import ObjectDoesNotExist
 
 # Imports from xbus
-from xbus.utils import process_incoming_data, get_handler, get_object
+from xbus.utils import process_incoming_data, get_handler
 from xbus.api import send_event
 from xbus.models import Event
 
