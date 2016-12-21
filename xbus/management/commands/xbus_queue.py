@@ -19,6 +19,7 @@ from xbus import api
 
 admin_logger = logging.getLogger("django.request")
 
+
 class Command(NoArgsCommand):
 
     option_list = NoArgsCommand.option_list + (
@@ -67,7 +68,8 @@ class Command(NoArgsCommand):
                 event.state = 'error'
                 event.comment = format_exc()
                 event.save()
-                admin_logger.error("XBUS - Connection error - IN %s", event.comment)
+                admin_logger.error(
+                    "XBUS - Connection error - IN %s", event.comment)
             else:
                 event.state = 'done'
                 event.comment = u''  # Override previous error, may happen
@@ -105,7 +107,8 @@ class Command(NoArgsCommand):
                 event.state = 'error'
                 event.comment = format_exc()
                 event.save()
-                admin_logger.error("XBUS - Connection error - OUT %s", event.comment)
+                admin_logger.error(
+                    "XBUS - Connection error - OUT %s", event.comment)
             else:
                 event.event_id = event_id
                 if ret is False:
@@ -116,7 +119,7 @@ class Command(NoArgsCommand):
 
                 event.save()
 
-            sleep(0.1) # Wait for Xbus to digest
+            sleep(0.1)  # Wait for Xbus to digest
 
         conn.logout(token)
         conn.close()

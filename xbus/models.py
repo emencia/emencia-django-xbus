@@ -11,6 +11,7 @@ from django_extensions.db.fields import UUIDField
 
 XREF_LENGTH = 80
 
+
 class XbusManager(Manager):
     def get_by_natural_key(self, xref, odoo_created):
         return self.get(xref=xref)
@@ -26,8 +27,6 @@ class XbusAwareMixin(Model):
     an interesting state for Odoo. We might want to wait for certain fields
     to be filled to send a create xbus-event.
     """
-
-
     objects = XbusManager()
 
     class Meta:
@@ -96,7 +95,8 @@ class Event(Model):
     # Binary in msgpack format
     item = BinaryField(_(u'Event item'))
 
-    admin_url = CharField(max_length=250, default="", editable=False, null=True)
+    admin_url = CharField(
+        max_length=250, default="", editable=False, null=True)
 
 
 class XbusSyncError(Exception):

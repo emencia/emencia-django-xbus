@@ -54,11 +54,11 @@ class Consumer(ZmqRpcServer):
 
     @RpcMethod
     def has_clearing(self):
-        return False, None # data clearing not supported
+        return False, None  # data clearing not supported
 
     @RpcMethod
     def has_immediate_reply(self):
-        return False, [] # immediate replies not supported
+        return False, []  # immediate replies not supported
 
     #
     # API to read data
@@ -67,7 +67,7 @@ class Consumer(ZmqRpcServer):
     def start_event(self, envelope_id, event_id, type_name):
         logger.debug(u'Start event')
         self.event_id_to_type[event_id] = type_name
-        return True, [] # Ok
+        return True, []  # Ok
 
     @RpcMethod
     def send_item(self, envelope_id, event_id, indices, data):
@@ -93,7 +93,7 @@ class Consumer(ZmqRpcServer):
             item=item,
         )
 
-        return True, [] # Ok
+        return True, []  # Ok
 
     @RpcMethod
     def end_event(self, envelope_id, event_id):
@@ -106,7 +106,8 @@ class Consumer(ZmqRpcServer):
 
 
 # URL the consumer will listen to
-CONSUMER_LISTEN = getattr(settings, 'XBUS_CONSUMER_LISTEN', u'tcp://127.0.0.1:4892')
+CONSUMER_LISTEN = getattr(
+    settings, 'XBUS_CONSUMER_LISTEN', u'tcp://127.0.0.1:4892')
 
 # Connect to Xbus.broker
 CONSUMER_URL = getattr(settings, 'XBUS_CONSUMER_URL', u'tcp://127.0.0.1:4891')
