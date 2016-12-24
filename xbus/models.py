@@ -44,13 +44,23 @@ class XbusAwareMixin(Model):
         return (self.xref, self.odoo_created)
 
     def get_xbus_fields(self):
-        return {}
+        raise NotImplementedError()
 
-    def get_xbus_event_type(self):
+    @staticmethod
+    def get_xbus_event_type(event_type):
+        """Returns the event_type which will be used to contact xbus
+
+        @param event_type: The type created or updated
+        @type  param: str
+
+        @return:  The event type
+        @rtype :  str
         """
-            Returns the event_type which will be used to contact xbus
-        """
-        return u"UNSPECIFIED_EVENT_TYPE (%s)"
+        raise NotImplementedError()
+
+    def get_admin_url(self):
+        """Get the admin url"""
+        raise NotImplementedError()
 
     def odoo_creation_condition(self):
         """
