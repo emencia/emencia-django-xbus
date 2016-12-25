@@ -6,12 +6,15 @@ import logging
 # Import from Django
 from django.conf import settings
 
+try:
+    from django.db.models.loading import get_model
+except ImportError:
+    from django.apps import apps
+    get_model = apps.get_model
+
 # Other
 import msgpack
 from zmq_rpc.client import ZmqRpcClient
-
-# Import from xbus
-from .models import Event
 
 
 registry = {}
@@ -33,7 +36,9 @@ def send_event(instance, event_type, item, immediate=False, admin_url=None):
     # If the instance hasn't a xref, we create it
     if not instance.xref:
         instance.xref = str(uuid4())
-        instance.save(update_fields=['xref', ])
+
+        if instance.pk:
+            instance.save(update_fields=['xref'])
 
     xref = str(instance.xref)
 
@@ -55,7 +60,8 @@ def send_event(instance, event_type, item, immediate=False, admin_url=None):
         direction = 'out'
 
     # Add to the queue
-    event = Event.objects.create(
+    event_model = get_model('xbus', 'Event')
+    event = event_model.objects.create(
         direction=direction,
         state='pending',
         xbus_message_correlation_id=xbus_message_correlation_id,
