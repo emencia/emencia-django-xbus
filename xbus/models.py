@@ -1,3 +1,5 @@
+import logging
+
 # Import from Django
 from django.db.models import Model, Manager
 from django.db.models import (
@@ -8,7 +10,10 @@ from django.utils.translation import ugettext as _
 # Other
 from django_extensions.db.fields import UUIDField
 
+from xbus.api import send_event
 
+
+logger = logging.getLogger(__name__)
 XREF_LENGTH = 80
 
 
@@ -27,18 +32,17 @@ class XbusAwareMixin(Model):
     an interesting state for Odoo. We might want to wait for certain fields
     to be filled to send a create xbus-event.
     """
-    objects = XbusManager()
-
-    class Meta:
-        abstract = True
-
     # TODO
     # 1. Add data migrations to set xref for existing objects
     # 2. Then set unique=True
     xref = UUIDField(_(u'External Ref'), null=True, blank=True,
                      max_length=XREF_LENGTH)
-
     odoo_created = NullBooleanField(default=False, editable=False)
+    emitter = False
+    objects = XbusManager()
+
+    class Meta:
+        abstract = True
 
     def natural_key(self):
         return (self.xref, self.odoo_created)
@@ -69,9 +73,28 @@ class XbusAwareMixin(Model):
         """
         return True
 
+    def save(self, *args, **kwargs):
+        """To send data to xbus"""
+        if self.emitter:
+            xbus_fields = self.get_xbus_fields()
+            admin_url = self.get_admin_url()
+
+            if not self.pk:
+                event_type = self.get_xbus_event_type('created')
+                logger.info(
+                    u'A new item is created and synchronize {xref}'.format(
+                        xref=self.xref))
+            else:
+                event_type = self.get_xbus_event_type('updated')
+                logger.info(
+                    u'A new item is updated and synchronize {xref}'.format(
+                        xref=self.xref))
+            send_event(self, event_type, xbus_fields, admin_url=admin_url)
+
+        super(XbusAwareMixin, self).save(*args, **kwargs)
+
 
 class Event(Model):
-
     ctime = DateTimeField(auto_now_add=True, null=True)
 
     # Identify the object in the database and its version
