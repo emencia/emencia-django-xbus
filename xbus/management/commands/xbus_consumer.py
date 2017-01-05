@@ -26,6 +26,8 @@ from zmq_rpc.client import ZmqRpcClient
 # Import from xbus
 from xbus.models import Event
 from xbus.api import _send_healtcheck_event
+from xbus.constants import (
+    CONSUMER_LISTEN, CONSUMER_URL, CONSUMER_LOGIN, CONSUMER_PASSWORD)
 
 logger = logging.getLogger(__name__)
 
@@ -105,16 +107,6 @@ class Consumer(ZmqRpcServer):
     @RpcMethod
     def end_envelope(self, envelope_id):
         return True, []
-
-
-# URL the consumer will listen to
-CONSUMER_LISTEN = getattr(
-    settings, 'XBUS_CONSUMER_LISTEN', u'tcp://127.0.0.1:4892')
-
-# Connect to Xbus.broker
-CONSUMER_URL = getattr(settings, 'XBUS_CONSUMER_URL', u'tcp://127.0.0.1:4891')
-CONSUMER_LOGIN = getattr(settings, 'XBUS_CONSUMER_LOGIN', u'consumer_role')
-CONSUMER_PASSWORD = getattr(settings, 'XBUS_CONSUMER_PASSWORD', u'password')
 
 
 class Command(NoArgsCommand):

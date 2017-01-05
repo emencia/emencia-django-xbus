@@ -11,10 +11,10 @@ from django.utils.translation import ugettext as _
 from django_extensions.db.fields import UUIDField
 
 from xbus.api import send_event
+from xbus.constants import XREF_LENGTH, DIRECTION_CHOICES, STATE_CHOICES
 
 
 logger = logging.getLogger(__name__)
-XREF_LENGTH = 80
 
 
 class XbusManager(Manager):
@@ -99,35 +99,21 @@ class Event(Model):
 
     # Identify the object in the database and its version
     xref = CharField(_(u'External Ref'), max_length=XREF_LENGTH)
-    xbus_message_correlation_id = CharField(_(u'Message correlation id'),
-                                            max_length=36)
+    xbus_message_correlation_id = CharField(
+        _(u'Message correlation id'), max_length=36)
 
     # Event type
     event_type = CharField(_(u'Event type'), max_length=80)
     event_id = CharField(_(u'Event id'), max_length=80, null=True, blank=True)
 
     # Direction : incoming or outgoing
-    DIRECTION_CHOICES = (
-        ('in', _(u'Incoming')),
-        ('out', _(u'Outgoing')),
-        ('immediate-out', _(u'Immediate-Out')),
-    )
-    direction = CharField(_(u'Direction'), max_length=25,
-                          choices=DIRECTION_CHOICES)
-
-    # State
-    STATE_CHOICES = (
-        ('pending', _(u'Pending')),
-        ('done', u'Done'),
-        ('error', _(u'Error')),
-    )
+    direction = CharField(
+        _(u'Direction'), max_length=25, choices=DIRECTION_CHOICES)
     state = CharField(_(u'State'), max_length=20, choices=STATE_CHOICES)
-
     comment = TextField(_(u'Comment'), blank=True)
 
     # Binary in msgpack format
     item = BinaryField(_(u'Event item'))
-
     admin_url = CharField(
         max_length=250, default="", editable=False, null=True)
 
