@@ -1,4 +1,4 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,5 +24,5 @@ setup(
     version='0.1',
     packages=['xbus'],
     license='GPLv3+',
-    install_requires=['msgpack-python', 'zmq_rpc'],
+    install_requires=['msgpack-python', 'zmq_rpc', 'django-extensions'],
 )
