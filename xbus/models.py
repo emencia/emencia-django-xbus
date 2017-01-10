@@ -1,6 +1,7 @@
 import logging
 
 # Import from Django
+from django.db import models
 from django.db.models import Model, Manager
 from django.db.models import (
     BinaryField, CharField, DateTimeField, TextField, NullBooleanField,
@@ -94,6 +95,14 @@ class XbusAwareMixin(Model):
         super(XbusAwareMixin, self).save(*args, **kwargs)
 
 
+class Envelope(models.Model):
+    """To store envelope"""
+    created_at = models.DateTimeField(auto_now_add=True, null=True)
+    envelope_id = models.CharField(max_length=80, null=True, blank=True)
+    direction = models.CharField(max_length=25, choices=DIRECTION_CHOICES)
+    state = models.CharField(max_length=20, choices=STATE_CHOICES)
+
+
 class Event(Model):
     ctime = DateTimeField(auto_now_add=True, null=True)
 
@@ -106,16 +115,13 @@ class Event(Model):
     event_type = CharField(_(u'Event type'), max_length=80)
     event_id = CharField(_(u'Event id'), max_length=80, null=True, blank=True)
 
-    # Direction : incoming or outgoing
-    direction = CharField(
-        _(u'Direction'), max_length=25, choices=DIRECTION_CHOICES)
-    state = CharField(_(u'State'), max_length=20, choices=STATE_CHOICES)
     comment = TextField(_(u'Comment'), blank=True)
 
     # Binary in msgpack format
     item = BinaryField(_(u'Event item'))
     admin_url = CharField(
         max_length=250, default="", editable=False, null=True)
+    envelope = models.ForeignKey(Envelope, null=True)
 
 
 class XbusSyncError(Exception):

@@ -24,11 +24,10 @@ class EventAdmin(admin.ModelAdmin):
     list_display = (
         'xref',
         'event_type', 'event_id',
-        'direction', 'state',
         'ctime', 'id',
     )
 
-    list_filter = ('direction', 'state', 'event_type')
+    list_filter = ('xref', 'event_type')
     search_fields = ('xref', 'xbus_message_correlation_id', 'event_id')
 
     readonly_fields = ['to_admin_url', 'payload', 'ctime']
