@@ -40,6 +40,7 @@ class XbusAwareMixin(Model):
                      max_length=XREF_LENGTH)
     odoo_created = NullBooleanField(default=False, editable=False)
     emitter = False
+    auto_save = True
     objects = XbusManager()
 
     class Meta:
@@ -76,7 +77,7 @@ class XbusAwareMixin(Model):
 
     def save(self, *args, **kwargs):
         """To send data to xbus"""
-        if self.emitter:
+        if self.emitter and self.auto_save:
             xbus_fields = self.get_xbus_fields()
             admin_url = self.get_admin_url()
 
