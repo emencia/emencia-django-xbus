@@ -3,6 +3,8 @@ from pprint import pformat
 
 # Import from Django
 from django.contrib import admin
+from django.core.urlresolvers import reverse
+from django.utils.html import format_html
 
 # Import msgpack
 import msgpack
@@ -22,9 +24,23 @@ change_to_pending.short_description = u'Change state to pending'
 
 class EnvelopeAdmin(admin.ModelAdmin):
     """Admin of envelope"""
-    list_display = ('envelope_id', 'created_at', 'direction', 'state')
+    list_display = (
+        'envelope_id', 'created_at', 'show_event', 'direction', 'state')
     list_filter = ('state',)
     search_fields = ('envelope_id',)
+
+    def show_event(self, obj):
+        """To display event with a link"""
+        all_event = ''
+
+        for event in obj.event_set.all():
+            url = reverse('admin:{app}_{model}_change'.format(
+                app=event._meta.app_label, model=event._meta.model_name),
+                args=(event.pk,))
+            all_event += u'<a href="{url}">{pk} {event_id}</a><br />'.format(
+                url=url, pk=event.pk, event_id=event.event_id)
+
+        return format_html(all_event)
 
 
 class EventAdmin(admin.ModelAdmin):
