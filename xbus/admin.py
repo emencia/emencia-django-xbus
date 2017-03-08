@@ -22,9 +22,9 @@ change_to_pending.short_description = u'Change state to pending'
 
 class EnvelopeAdmin(admin.ModelAdmin):
     """Admin of envelope"""
-    list_display = ('xref', 'envelope_id', 'ctime', 'direction', 'state')
+    list_display = ('envelope_id', 'created_at', 'direction', 'state')
     list_filter = ('state',)
-    search_fields = ('xref', 'envelope_id')
+    search_fields = ('envelope_id',)
 
 
 class EventAdmin(admin.ModelAdmin):
