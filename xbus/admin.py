@@ -8,7 +8,7 @@ from django.contrib import admin
 import msgpack
 
 # Import from here
-from .models import Event
+from .models import Envelope, Event
 
 
 def change_to_pending(modeladmin, request, queryset):
@@ -20,14 +20,16 @@ def change_to_pending(modeladmin, request, queryset):
 change_to_pending.short_description = u'Change state to pending'
 
 
-class EventAdmin(admin.ModelAdmin):
-    list_display = (
-        'xref',
-        'event_type', 'event_id',
-        'ctime', 'id',
-    )
+class EnvelopeAdmin(admin.ModelAdmin):
+    """Admin of envelope"""
+    list_display = ('xref', 'envelope_id', 'ctime', 'direction', 'state')
+    list_filter = ('state',)
+    search_fields = ('xref', 'envelope_id')
 
-    list_filter = ('xref', 'event_type')
+
+class EventAdmin(admin.ModelAdmin):
+    list_display = ('xref', 'event_type', 'event_id', 'ctime', 'id')
+    list_filter = ('event_type',)
     search_fields = ('xref', 'xbus_message_correlation_id', 'event_id')
 
     readonly_fields = ['to_admin_url', 'payload', 'ctime']
@@ -46,4 +48,5 @@ class EventAdmin(admin.ModelAdmin):
     to_admin_url.allow_tags = True
 
 
+admin.site.register(Envelope, EnvelopeAdmin)
 admin.site.register(Event, EventAdmin)
