@@ -62,11 +62,12 @@ def send_event(instance, event_type, item, immediate=False, admin_url=None):
     # Add to the queue
     event_model = get_model('xbus', 'Event')
     envelope_model = get_model('xbus', 'Envelope')
-    event = event_model.objects.create(
-        xbus_message_correlation_id=xbus_message_correlation_id, xref=xref,
-        event_type=event_type, item=item, admin_url=admin_url)
     envelope = envelope_model.objects.create(
         direction=direction, state='pending')
+    event = event_model.objects.create(
+        xbus_message_correlation_id=xbus_message_correlation_id, xref=xref,
+        event_type=event_type, item=item, admin_url=admin_url,
+        envelope=envelope)
 
     if immediate:
         try:
