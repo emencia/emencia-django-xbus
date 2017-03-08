@@ -9,6 +9,7 @@ DIRECTION_CHOICES = (
     ('immediate-out', _(u'Immediate-Out')),
 )
 STATE_CHOICES = (
+    ('draft', _(u'Draft')),
     ('pending', _(u'Pending')),
     ('done', u'Done'),
     ('error', _(u'Error')),

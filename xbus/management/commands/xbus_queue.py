@@ -13,7 +13,7 @@ from django.core.management.base import NoArgsCommand
 import msgpack
 
 # Import from here
-from xbus.models import Event
+from xbus.models import Event, Envelope
 from xbus import api
 
 
@@ -21,7 +21,6 @@ admin_logger = logging.getLogger("django.request")
 
 
 class Command(NoArgsCommand):
-
     option_list = NoArgsCommand.option_list + (
         make_option(
             '--daemon', action='store_true', default=False,
@@ -83,7 +82,7 @@ class Command(NoArgsCommand):
         Sends (at most 100) pending events to xbus. Returns the number
         of pending events over 100.
         """
-        pending = Event.objects.filter(state='pending', direction='out')
+        pending = Envelope.objects.filter(state='pending', direction='out')
         pending = pending.order_by('pk')
         if limit is not None:
             pending = pending[:limit]
@@ -100,29 +99,33 @@ class Command(NoArgsCommand):
 
         conn, token = api.new_connection_to_xbus()
 
-        for event in pending:
+        for envelope in pending:
             try:
-                ret, reply, event_id = api._xbus_send_event(conn, token, event)
+                ret, reply, event_id = api._xbus_send_event(
+                    conn, token, envelope)
             except Exception:
-                event.state = 'error'
+                envelope.state = 'error'
+                event = envelope.event_set.first()
                 event.comment = format_exc()
+
+                envelope.save()
                 event.save()
                 admin_logger.error(
                     "XBUS - Connection error - OUT %s", event.comment)
             else:
-                event.event_id = event_id
                 if ret is False:
-                    event.comment = u'retry'
+                    envelope.comment = u'retry'
                 else:
-                    event.state = 'done'
-                    event.comment = u''  # Override previous error, may happen
+                    envelope.state = 'done'
+                    envelope.comment = u''
 
-                event.save()
+                envelope.save()
 
             sleep(0.1)  # Wait for Xbus to digest
 
         conn.logout(token)
         conn.close()
+
         return left
 
     def handle_noargs(self, **kw):
