@@ -28,7 +28,7 @@ def register_handler(event_type, handler):
 def send_event(instance, event_type, item, immediate=False, admin_url=None):
     """
     Utility function used typically by signal handlers to send an xbus event.
-    For now we only support sending 1 event per envelop, and 1 item per event.
+    For now we only support sending 1 event per envelope, and 1 item per event.
     """
     # Identify the object and the message
     xbus_message_correlation_id = str(uuid4())
@@ -61,33 +61,33 @@ def send_event(instance, event_type, item, immediate=False, admin_url=None):
 
     # Add to the queue
     event_model = get_model('xbus', 'Event')
+    envelope_model = get_model('xbus', 'Envelope')
     event = event_model.objects.create(
-        direction=direction,
-        state='pending',
-        xbus_message_correlation_id=xbus_message_correlation_id,
-        xref=xref,
-        event_type=event_type,
-        item=item,
-        admin_url=admin_url,
-    )
+        xbus_message_correlation_id=xbus_message_correlation_id, xref=xref,
+        event_type=event_type, item=item, admin_url=admin_url)
+    envelope = envelope_model.objects.create(direction=direction)
 
     if immediate:
         try:
-            success, reply, event_id = send_immediate_reply_event(event)
+            success, reply, event_id = send_immediate_reply_event(envelope)
             event.event_id = event_id
             event.comment = (
                 "Returned code: %s\nReturned val: %s" % (success, reply)
             )
             if success is True:
-                event.state = 'done'
+                envelope.state = 'done'
 
+            envelope.save()
             event.save()
 
             return event, success, reply
         except Exception:
-            event.state = 'error'
+            envelope.state = 'error'
             event.comment = format_exc()
+
+            envelope.save()
             event.save()
+
             return event, False, None
 
     return event
@@ -107,12 +107,12 @@ def new_connection_to_xbus():
     return conn, token
 
 
-def send_immediate_reply_event(event):
+def send_immediate_reply_event(envelope):
     conn, token = new_connection_to_xbus()
-    return _xbus_send_event(conn, token, event)
+    return _xbus_send_event(conn, token, envelope)
 
 
-def _xbus_send_event(conn, token, event):
+def _xbus_send_event(conn, token, envelope):
     """
     Returns a tuple with three values:
 
@@ -120,31 +120,38 @@ def _xbus_send_event(conn, token, event):
     - reply   : returned value for immediate-reply, None otherwise
     - event_id: broker event-id, for debugging purpuses
     """
-
-    event_type = event.event_type
-    item = event.item
-
-    # conn.packer.pack != msgpack.packb
-    item = msgpack.unpackb(item, encoding='utf-8')
-    item = conn.packer.pack(item)
-
-    # Send
-    logger.info(u'Sending event {event_type}'.format(event_type=event_type))
     envelope_id = conn.start_envelope(token)
-    event_id = conn.start_event(token, envelope_id, event_type, 0)
 
-    # In case of error event_id will be the empty string, otherwise an UUID
-    assert bool(event_id), (
-            "Error: the following event_type isn't registered with "
-            "xbus or you might not have the right permissions to send "
-            "it: %s" % event_type)
+    for event in envelope.event_set.all():
+        event_type = event.event_type
+        item = event.item
+        item = msgpack.unpackb(item, encoding='utf-8')
+        item = conn.packer.pack(item)
 
-    reply = None
-    success = conn.send_item(token, envelope_id, event_id, item)
-    if success:
-        success, reply = conn.end_event(token, envelope_id, event_id)
+        # Send
+        logger.info(
+            u'Sending event {event_type}'.format(event_type=event_type))
+        event_id = conn.start_event(token, envelope_id, event_type, 0)
+
+        # In case of error event_id will be the empty string, otherwise an UUID
+        assert bool(event_id), (
+                "Error: the following event_type isn't registered with "
+                "xbus or you might not have the right permissions to send "
+                "it: %s" % event_type)
+
+        reply = None
+        success = conn.send_item(token, envelope_id, event_id, item)
         if success:
-            success = conn.end_envelope(token, envelope_id)
+            success, reply = conn.end_event(token, envelope_id, event_id)
+
+        event.event_id = event_id
+        event.save()
+
+    if success:
+        success = conn.end_envelope(token, envelope_id)
+
+    envelope.envelope_id = envelope_id
+    envelope.save()
 
     return success, reply, event_id
 
