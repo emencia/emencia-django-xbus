@@ -123,6 +123,9 @@ def _xbus_send_event(conn, token, envelope):
     - event_id: broker event-id, for debugging purpuses
     """
     envelope_id = conn.start_envelope(token)
+    success = None
+    reply = None
+    event_id = None
 
     for event in envelope.event_set.all():
         event_type = event.event_type
