@@ -115,7 +115,9 @@ class Event(Model):
     # Event type
     event_type = CharField(_(u'Event type'), max_length=80)
     event_id = CharField(_(u'Event id'), max_length=80, null=True, blank=True)
-
+    direction = models.CharField(
+        max_length=25, choices=DIRECTION_CHOICES, null=True)
+    state = models.CharField(max_length=20, choices=STATE_CHOICES, null=True)
     comment = TextField(_(u'Comment'), blank=True)
 
     # Binary in msgpack format
