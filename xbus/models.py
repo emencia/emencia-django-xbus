@@ -103,6 +103,9 @@ class Envelope(models.Model):
     direction = models.CharField(max_length=25, choices=DIRECTION_CHOICES)
     state = models.CharField(max_length=20, choices=STATE_CHOICES)
 
+    def __unicode__(self):
+        return self.pk
+
 
 class Event(Model):
     ctime = DateTimeField(auto_now_add=True, null=True)
