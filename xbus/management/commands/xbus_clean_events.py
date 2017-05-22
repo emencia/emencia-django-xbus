@@ -46,10 +46,9 @@ class Command(BaseCommand):
             raise CommandError(
                 'Wrong argument format, read --help for more help')
         else:
-            helper = "The {} xbus events older than {} will be delete"
             logger.info(
-                'The {nb} xbus events older than {ctime} will be delete'.format(
-                    nb, ctime))
+                'The {nb} xbus events older than {ctime} will be delete'
+                .format(nb, ctime))
             if interactive:
                 answer = raw_input('Are you sure ? (yes or no): ')
             else:

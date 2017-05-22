@@ -3,3 +3,6 @@ delpyc:
 
 migrate:
 	python runmigrations.py
+
+test:
+	tox

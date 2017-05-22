@@ -87,10 +87,10 @@ class Command(LabelCommand):
         if handler is None:
             print "!warning!: unregistered event type: %s" % self.event_type
 
-        help_xbus_commands = self.command_help
-        create_event = self.create_event
-        run_callback = self.run_callback
-        replay_event = self.replay_event
+        self.command_help
+        self.create_event
+        self.run_callback
+        self.replay_event
 
         ipshell.banner1 = banner % label
         ipshell()
