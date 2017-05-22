@@ -42,7 +42,6 @@ class XbusAwareMixin(Model):
                      max_length=XREF_LENGTH)
     odoo_created = NullBooleanField(default=False, editable=False)
     emitter = False
-    auto_save = True
     objects = XbusManager()
 
     class Meta:
