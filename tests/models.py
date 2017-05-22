@@ -17,7 +17,7 @@ class SimpleEmitter(XbusAwareMixin, models.Model):
 
     @staticmethod
     def get_xbus_event_type(event_type):
-        """docstring for get_xbus_event_type"""
+        """Get the event type"""
         return 'try_{event_type}'.format(event_type=event_type)
 
     def get_xbus_fields(self):
@@ -25,7 +25,7 @@ class SimpleEmitter(XbusAwareMixin, models.Model):
         return fields
 
     def get_admin_url(self):
-        """docstring for get_admin_url"""
+        """Get the admin url"""
         return ''
 
 
