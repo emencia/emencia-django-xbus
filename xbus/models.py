@@ -6,6 +6,8 @@ from django.db.models import Model, Manager
 from django.db.models import (
     BinaryField, CharField, DateTimeField, TextField, NullBooleanField,
 )
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from django.utils.translation import ugettext as _
 
 # Other
@@ -75,26 +77,6 @@ class XbusAwareMixin(Model):
         """
         return True
 
-    def save(self, *args, **kwargs):
-        """To send data to xbus"""
-        if self.emitter and self.auto_save:
-            xbus_fields = self.get_xbus_fields()
-            admin_url = self.get_admin_url()
-
-            if not self.pk:
-                event_type = self.get_xbus_event_type('created')
-                logger.info(
-                    u'A new item is created and synchronize {xref}'.format(
-                        xref=self.xref))
-            else:
-                event_type = self.get_xbus_event_type('updated')
-                logger.info(
-                    u'A new item is updated and synchronize {xref}'.format(
-                        xref=self.xref))
-            send_event(self, event_type, xbus_fields, admin_url=admin_url)
-
-        super(XbusAwareMixin, self).save(*args, **kwargs)
-
 
 class Envelope(models.Model):
     """To store envelope"""
@@ -132,3 +114,23 @@ class Event(Model):
 
 class XbusSyncError(Exception):
     pass
+
+
+@receiver(post_save, dispatch_uid='send_to_xbus')
+def send_to_xbus(sender, instance, created, **kwargs):
+    if issubclass(sender, XbusAwareMixin):
+        if instance.emitter:
+            xbus_fields = instance.get_xbus_fields()
+            admin_url = instance.get_admin_url()
+
+            if created:
+                event_type = instance.get_xbus_event_type('created')
+                logger.info(
+                    u'A new item is created and synchronize {xref}'.format(
+                        xref=instance.xref))
+            else:
+                event_type = instance.get_xbus_event_type('updated')
+                logger.info(
+                    u'A new item is updated and synchronize {xref}'.format(
+                        xref=instance.xref))
+            send_event(instance, event_type, xbus_fields, admin_url=admin_url)
