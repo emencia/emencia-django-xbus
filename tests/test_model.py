@@ -7,7 +7,8 @@ from django.core.management import call_command
 
 from xbus.models import Envelope
 
-from tests.models import EmitterWithoutMethod, SimpleEmitter, Consumer
+from tests.models import (
+    EmitterWithoutMethod, SimpleEmitter, EmitterWithExitCondition, Consumer)
 
 
 class TestEmitterWithoutMethod(TestCase):
@@ -35,6 +36,20 @@ class TestSimpleEmitter(TransactionTestCase):
         self.assertEqual(emitter.name, 'Try')
         self.assertEqual(envelope.state, 'error')
         self.assertEqual(refresh_count, count + 1)
+
+
+class TestEmitterWithExitCondition(TestCase):
+    """docstring for TestEmitterWithExitCondition"""
+    def test_with_exit_condition(self):
+        count = Envelope.objects.count()
+        emitter = EmitterWithExitCondition.objects.create(name='Try')
+
+        call_command('xbus_queue')
+
+        refresh_count = Envelope.objects.count()
+
+        self.assertEqual(emitter.name, 'Try')
+        self.assertEqual(refresh_count, count)
 
 
 class TestConsumer(TestCase):

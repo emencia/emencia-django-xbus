@@ -76,6 +76,14 @@ class XbusAwareMixin(Model):
         """
         return True
 
+    def condition_to_exit(self):
+        """Add a specific condition to exit
+
+        @return:  The result of condition
+        @rtype :  bool
+        """
+        return False
+
 
 class Envelope(models.Model):
     """To store envelope"""
@@ -119,6 +127,9 @@ class XbusSyncError(Exception):
 def send_to_xbus(sender, instance, created, **kwargs):
     if issubclass(sender, XbusAwareMixin):
         if instance.emitter:
+            if instance.condition_to_exit():
+                return
+
             xbus_fields = instance.get_xbus_fields()
             admin_url = instance.get_admin_url()
 
