@@ -24,14 +24,17 @@ class TestSimpleEmitter(TransactionTestCase):
     def test_simple_emitter(self, mock_xbus):
         mock_xbus.return_value = (MagicMock(
             end_event=lambda x, y, z: (True, '')), uuid.uuid4())
+        count = Envelope.objects.count()
         emitter = SimpleEmitter.objects.create(name='Try')
 
         call_command('xbus_queue')
 
         envelope = Envelope.objects.last()
+        refresh_count = Envelope.objects.count()
 
         self.assertEqual(emitter.name, 'Try')
         self.assertEqual(envelope.state, 'error')
+        self.assertEqual(refresh_count, count + 1)
 
 
 class TestConsumer(TestCase):
