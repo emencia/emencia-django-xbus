@@ -125,6 +125,7 @@ class XbusSyncError(Exception):
 
 @receiver(post_save, dispatch_uid='send_to_xbus')
 def send_to_xbus(sender, instance, created, **kwargs):
+    """To send the event to xbus"""
     if issubclass(sender, XbusAwareMixin):
         if instance.emitter:
             if instance.condition_to_exit():
