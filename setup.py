@@ -24,5 +24,6 @@ setup(
     version='0.1',
     packages=['xbus'],
     license='GPLv3+',
-    install_requires=['msgpack-python', 'zmq_rpc', 'django-extensions'],
+    install_requires=[
+        'msgpack-python', 'zmq_rpc', 'django-extensions', 'contextlib2'],
 )

@@ -5,6 +5,7 @@ from mock import patch, MagicMock
 from django.test import TestCase, TransactionTestCase
 from django.core.management import call_command
 
+from xbus.context_manager import disconnect_xbus_send
 from xbus.models import Envelope
 
 from tests.models import (
@@ -36,6 +37,37 @@ class TestSimpleEmitter(TransactionTestCase):
         self.assertEqual(emitter.name, 'Try')
         self.assertEqual(envelope.state, 'error')
         self.assertEqual(refresh_count, count + 1)
+
+    @patch('xbus.api.new_connection_to_xbus')
+    def test_disconnect_xbus_send(self, mock_xbus):
+        mock_xbus.return_value = (MagicMock(
+            end_event=lambda x, y, z: (True, '')), uuid.uuid4())
+        count = Envelope.objects.count()
+
+        with disconnect_xbus_send():
+            emitter = SimpleEmitter.objects.create(name='Try')
+
+        call_command('xbus_queue')
+
+        refresh_count = Envelope.objects.count()
+
+        self.assertEqual(emitter.name, 'Try')
+        self.assertEqual(refresh_count, count)
+
+    @patch('xbus.api.new_connection_to_xbus')
+    @disconnect_xbus_send()
+    def test_disconnect_xbus_send_with_decorator(self, mock_xbus):
+        mock_xbus.return_value = (MagicMock(
+            end_event=lambda x, y, z: (True, '')), uuid.uuid4())
+        count = Envelope.objects.count()
+        emitter = SimpleEmitter.objects.create(name='Try')
+
+        call_command('xbus_queue')
+
+        refresh_count = Envelope.objects.count()
+
+        self.assertEqual(emitter.name, 'Try')
+        self.assertEqual(refresh_count, count)
 
 
 class TestEmitterWithExitCondition(TestCase):
