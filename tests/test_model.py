@@ -39,7 +39,7 @@ class TestSimpleEmitter(TransactionTestCase):
 
 
 class TestEmitterWithExitCondition(TestCase):
-    """docstring for TestEmitterWithExitCondition"""
+    """To test emitter with exit condition"""
     def test_with_exit_condition(self):
         count = Envelope.objects.count()
         emitter = EmitterWithExitCondition.objects.create(name='Try')
